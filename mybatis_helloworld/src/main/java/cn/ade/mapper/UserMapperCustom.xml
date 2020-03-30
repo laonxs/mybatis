@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    mapper.xml配置文件是以sql语句为单位进行配置的，最终是将sql语句封装到MappedStatement对象中
+    Mapped Statement是mybatis一个底层封装对象，它包装了mybatis配置信息及sql映射信息等。
+    mapper.xml配置文件中一个sql对应一个Mapped Statement对象，sql的id即是Mapped statement的id。
+
+    namespace命名空间的作用是为了更好的对sql进行隔离和管理
+    namespace接口类路径，通过这样的设置找到对应的mapper接口
+-->
+
+<mapper namespace="cn.ade.mapper.UserMapperCustom">
+    <!--
+        index：为数组的下标。
+        item：为数组每个元素的名称，名称随意定义
+        open：循环开始
+        close：循环结束
+        separator：中间分隔输出
+    -->
+    <sql id="query_user_where">
+        <if test="user != null">
+            <if test="user.id != 0">
+                and id = #{user.id}
+            </if>
+            <if test="ids != null and ids.size > 0">
+                <foreach collection="ids" item="id" open="and id in (" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </if>
+    </sql>
+
+    <select id="findUserList" parameterType="queryUserVo" resultType="user">
+        SELECT * FROM user
+        <where>
+          <include refid="cn.ade.mapper.UserMapperCustom.query_user_where"/>
+        </where>
+    </select>
+    
+    <select id="findUserByHashmap" parameterType="hashmap" resultType="user">
+        SELECT * FROM user WHERE username LIKE "%${username}%"
+    </select>
+</mapper>

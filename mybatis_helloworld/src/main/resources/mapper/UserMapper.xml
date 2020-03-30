@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    mapper.xml配置文件是以sql语句为单位进行配置的，最终是将sql语句封装到MappedStatement对象中
+    Mapped Statement是mybatis一个底层封装对象，它包装了mybatis配置信息及sql映射信息等。
+    mapper.xml配置文件中一个sql对应一个Mapped Statement对象，sql的id即是Mapped statement的id。
+
+    namespace命名空间的作用是为了更好的对sql进行隔离和管理
+    namespace接口类路径，通过这样的设置找到对应的mapper接口
+-->
+<mapper namespace="cn.ade.mapper.UserMapper">
+
+    <!--
+        id必须与方法名一致
+        #{}:就相当于一个占位符，{}中可以使用value或者其他任意字符，目的是防止sql注入
+    -->
+    <select id="findUserById" parameterType="int" resultType="user">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+
+    <!--
+        ${}:就相当于一个拼接符，{}中只能使用value
+    -->
+    <select id="findUserByUsername" parameterType="string" resultType="user">
+        SELECT * FROM user WHERE username LIKE "%${value}%"
+    </select>
+
+    <!--// oracle自定义序列
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+            SELECT 自定义序列.NEXTVAL FROM DUAL
+        </selectKey>-->
+    <!--// 自定义uuid
+    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+        select uuid()
+    </selectKey>-->
+    <insert id="insertUser" parameterType="user">
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO user VALUES (null, #{username},#{birthday},#{sex},#{address})
+    </insert>
+
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+    <update id="updateUser" parameterType="user">
+        UPDATE user SET username = #{username}, birthday = #{birthday}, sex = #{sex}, address = #{address} WHERE id =
+         #{id}
+    </update>
+</mapper>
